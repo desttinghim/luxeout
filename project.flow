@@ -1,0 +1,29 @@
+
+project: {
+	name: 'Luxeout - A Breakout Clone in Luxe',
+	version: '0.0.1',
+	author: 'Desttinghim',
+
+	app: {
+		name: 'Luxeout',
+		package: 'net.dimnstudios.luxeout'
+	},
+
+	build: {
+		dependencies: {
+			luxe: '*'
+		}
+	},
+
+	files: {
+		assets: 'assets/'
+	}
+},
+
+if: {
+	web: {
+		build: {
+			flags:['--dce full']
+		}
+	}
+}

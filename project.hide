@@ -51,10 +51,19 @@
             ,"foldedRegions" : [
 
             ]
-            ,"activeLine" : 8
+            ,"activeLine" : 17
+        }
+        ,{
+             "path" : "project.flow"
+            ,"useTabs" : true
+            ,"indentSize" : 4
+            ,"foldedRegions" : [
+
+            ]
+            ,"activeLine" : 16
         }
     ]
-    ,"activeFile" : "src\\net\\dimnstudios\\luxeout\\Main.hx"
+    ,"activeFile" : "project.flow"
     ,"openFLTarget" : null
     ,"openFLBuildMode" : "Debug"
     ,"runActionType" : null
