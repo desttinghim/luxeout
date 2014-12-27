@@ -1,0 +1,67 @@
+{
+     "type" : 0
+    ,"target" : 1
+    ,"name" : "Luxeout"
+    ,"main" : null
+    ,"projectPackage" : "net.dimnstudios.luxeout"
+    ,"company" : "Dimn Studios"
+    ,"license" : ""
+    ,"url" : ""
+    ,"targetData" : [
+         {
+             "pathToHxml" : "flash.hxml"
+            ,"runActionType" : 1
+            ,"runActionText" : "bin/Luxeout.swf"
+        }
+        ,{
+             "pathToHxml" : "javascript.hxml"
+            ,"runActionType" : 1
+            ,"runActionText" : "bin\\index.html"
+        }
+        ,{
+             "pathToHxml" : "neko.hxml"
+            ,"runActionType" : 2
+            ,"runActionText" : "neko bin/Luxeout.n"
+        }
+        ,{
+             "pathToHxml" : "php.hxml"
+        }
+        ,{
+             "pathToHxml" : "cpp.hxml"
+            ,"runActionType" : 2
+            ,"runActionText" : "bin/Main-debug.exe"
+        }
+        ,{
+             "pathToHxml" : "java.hxml"
+        }
+        ,{
+             "pathToHxml" : "csharp.hxml"
+        }
+        ,{
+             "pathToHxml" : "python.hxml"
+            ,"runActionType" : 2
+            ,"runActionText" : "python bin/Luxeout.py"
+        }
+    ]
+    ,"files" : [
+         {
+             "path" : "src\\net\\dimnstudios\\luxeout\\Main.hx"
+            ,"useTabs" : true
+            ,"indentSize" : 4
+            ,"foldedRegions" : [
+
+            ]
+            ,"activeLine" : 8
+        }
+    ]
+    ,"activeFile" : "src\\net\\dimnstudios\\luxeout\\Main.hx"
+    ,"openFLTarget" : null
+    ,"openFLBuildMode" : "Debug"
+    ,"runActionType" : null
+    ,"runActionText" : null
+    ,"buildActionCommand" : null
+    ,"hiddenItems" : [
+
+    ]
+    ,"showHiddenItems" : false
+}
