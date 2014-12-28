@@ -193,6 +193,12 @@ obj/mscv16-ncxp/7c13088f_Inspector.obj
 obj/mscv16-ncxp/7c13088f_BatcherDebugView.obj
 obj/mscv16-ncxp/7c13088f_DebugView.obj
 obj/mscv16-ncxp/e7a1c0fe_Components.obj
+obj/mscv16-ncxp/2d9b1d02_Polygon.obj
+obj/mscv16-ncxp/2d9b1d02_Circle.obj
+obj/mscv16-ncxp/2d9b1d02_Shape.obj
+obj/mscv16-ncxp/1b7cacac_ShapeDrawer.obj
+obj/mscv16-ncxp/1b7cacac_CollisionData.obj
+obj/mscv16-ncxp/1b7cacac_Collision.obj
 obj/mscv16-ncxp/6e933b02_Timer.obj
 obj/mscv16-ncxp/6e933b02_Text.obj
 obj/mscv16-ncxp/6e933b02_Cursor.obj
@@ -218,8 +224,6 @@ obj/mscv16-ncxp/6e933b02_Debug.obj
 obj/mscv16-ncxp/6e933b02_Core.obj
 obj/mscv16-ncxp/493db83f_App.obj
 obj/mscv16-ncxp/222bd690_CoreThreadRequest.obj
-obj/mscv16-ncxp/6e933b02_Component.obj
-obj/mscv16-ncxp/6e933b02_ID.obj
 obj/mscv16-ncxp/6e933b02_Camera.obj
 obj/mscv16-ncxp/6e933b02_Entity.obj
 obj/mscv16-ncxp/6e933b02_Objects.obj
@@ -259,6 +263,7 @@ obj/mscv16-ncxp/da5fbaf5_StringTools.obj
 obj/mscv16-ncxp/da5fbaf5_StringBuf.obj
 obj/mscv16-ncxp/da5fbaf5_Std.obj
 obj/mscv16-ncxp/da5fbaf5_Reflect.obj
+obj/mscv16-ncxp/da5fbaf5_Movement.obj
 obj/mscv16-ncxp/da5fbaf5_IMap.obj
 obj/mscv16-ncxp/da5fbaf5_Main.obj
 obj/mscv16-ncxp/6e933b02_Game.obj
@@ -269,6 +274,10 @@ obj/mscv16-ncxp/da5fbaf5_List.obj
 obj/mscv16-ncxp/da5fbaf5_Lambda.obj
 obj/mscv16-ncxp/da5fbaf5_EReg.obj
 obj/mscv16-ncxp/d9499748_Lib.obj
+obj/mscv16-ncxp/da5fbaf5_CollisionRectComponent.obj
+obj/mscv16-ncxp/da5fbaf5_CollisionCircleComponent.obj
+obj/mscv16-ncxp/6e933b02_Component.obj
+obj/mscv16-ncxp/6e933b02_ID.obj
 obj/mscv16-ncxp/da5fbaf5___boot__.obj
 obj/mscv16-ncxp/da5fbaf5___files__.obj
 obj/mscv16-ncxp/da5fbaf5___resources__.obj

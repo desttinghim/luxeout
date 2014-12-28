@@ -195,6 +195,12 @@
 #include <luxe/debug/BatcherDebugView.h>
 #include <luxe/debug/DebugView.h>
 #include <luxe/components/Components.h>
+#include <luxe/collision/shapes/Polygon.h>
+#include <luxe/collision/shapes/Circle.h>
+#include <luxe/collision/shapes/Shape.h>
+#include <luxe/collision/ShapeDrawer.h>
+#include <luxe/collision/CollisionData.h>
+#include <luxe/collision/Collision.h>
 #include <luxe/Timer.h>
 #include <luxe/Text.h>
 #include <luxe/Cursor.h>
@@ -220,8 +226,6 @@
 #include <luxe/Core.h>
 #include <snow/App.h>
 #include <luxe/_Core/CoreThreadRequest.h>
-#include <luxe/Component.h>
-#include <luxe/ID.h>
 #include <luxe/Camera.h>
 #include <luxe/Entity.h>
 #include <luxe/Objects.h>
@@ -261,6 +265,7 @@
 #include <StringBuf.h>
 #include <Std.h>
 #include <Reflect.h>
+#include <Movement.h>
 #include <IMap.h>
 #include <Main.h>
 #include <luxe/Game.h>
@@ -271,6 +276,10 @@
 #include <Lambda.h>
 #include <EReg.h>
 #include <cpp/Lib.h>
+#include <CollisionRectComponent.h>
+#include <CollisionCircleComponent.h>
+#include <luxe/Component.h>
+#include <luxe/ID.h>
 
 void __files__boot();
 
@@ -473,6 +482,12 @@ hx::RegisterResources( hx::GetResources() );
 ::luxe::debug::BatcherDebugView_obj::__register();
 ::luxe::debug::DebugView_obj::__register();
 ::luxe::components::Components_obj::__register();
+::luxe::collision::shapes::Polygon_obj::__register();
+::luxe::collision::shapes::Circle_obj::__register();
+::luxe::collision::shapes::Shape_obj::__register();
+::luxe::collision::ShapeDrawer_obj::__register();
+::luxe::collision::CollisionData_obj::__register();
+::luxe::collision::Collision_obj::__register();
 ::luxe::Timer_obj::__register();
 ::luxe::Text_obj::__register();
 ::luxe::Cursor_obj::__register();
@@ -498,8 +513,6 @@ hx::RegisterResources( hx::GetResources() );
 ::luxe::Core_obj::__register();
 ::snow::App_obj::__register();
 ::luxe::_Core::CoreThreadRequest_obj::__register();
-::luxe::Component_obj::__register();
-::luxe::ID_obj::__register();
 ::luxe::Camera_obj::__register();
 ::luxe::Entity_obj::__register();
 ::luxe::Objects_obj::__register();
@@ -539,6 +552,7 @@ hx::RegisterResources( hx::GetResources() );
 ::StringBuf_obj::__register();
 ::Std_obj::__register();
 ::Reflect_obj::__register();
+::Movement_obj::__register();
 ::IMap_obj::__register();
 ::Main_obj::__register();
 ::luxe::Game_obj::__register();
@@ -549,6 +563,10 @@ hx::RegisterResources( hx::GetResources() );
 ::Lambda_obj::__register();
 ::EReg_obj::__register();
 ::cpp::Lib_obj::__register();
+::CollisionRectComponent_obj::__register();
+::CollisionCircleComponent_obj::__register();
+::luxe::Component_obj::__register();
+::luxe::ID_obj::__register();
 ::hxcpp::StaticRegexp_obj::__init__();
 ::hxcpp::StaticStd_obj::__init__();
 ::hxcpp::StaticZlib_obj::__init__();
@@ -558,6 +576,10 @@ hx::RegisterResources( hx::GetResources() );
 ::EReg_obj::__boot();
 ::cpp::vm::Thread_obj::__boot();
 ::haxe::Log_obj::__boot();
+::luxe::ID_obj::__boot();
+::luxe::Component_obj::__boot();
+::CollisionCircleComponent_obj::__boot();
+::CollisionRectComponent_obj::__boot();
 ::Lambda_obj::__boot();
 ::List_obj::__boot();
 ::Luxe_obj::__boot();
@@ -566,6 +588,7 @@ hx::RegisterResources( hx::GetResources() );
 ::luxe::Game_obj::__boot();
 ::Main_obj::__boot();
 ::IMap_obj::__boot();
+::Movement_obj::__boot();
 ::Reflect_obj::__boot();
 ::Std_obj::__boot();
 ::StringBuf_obj::__boot();
@@ -603,8 +626,6 @@ hx::RegisterResources( hx::GetResources() );
 ::luxe::Objects_obj::__boot();
 ::luxe::Entity_obj::__boot();
 ::luxe::Camera_obj::__boot();
-::luxe::ID_obj::__boot();
-::luxe::Component_obj::__boot();
 ::luxe::_Core::CoreThreadRequest_obj::__boot();
 ::snow::App_obj::__boot();
 ::luxe::Core_obj::__boot();
@@ -630,6 +651,12 @@ hx::RegisterResources( hx::GetResources() );
 ::luxe::Cursor_obj::__boot();
 ::luxe::Text_obj::__boot();
 ::luxe::Timer_obj::__boot();
+::luxe::collision::Collision_obj::__boot();
+::luxe::collision::CollisionData_obj::__boot();
+::luxe::collision::ShapeDrawer_obj::__boot();
+::luxe::collision::shapes::Shape_obj::__boot();
+::luxe::collision::shapes::Circle_obj::__boot();
+::luxe::collision::shapes::Polygon_obj::__boot();
 ::luxe::components::Components_obj::__boot();
 ::luxe::debug::DebugView_obj::__boot();
 ::luxe::debug::BatcherDebugView_obj::__boot();

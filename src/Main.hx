@@ -5,6 +5,7 @@ import luxe.Sprite;
 import luxe.Color;
 import luxe.Vector;
 import luxe.tween.Actuate;
+import luxe.collision.shapes.Shape;
 import luxe.collision.shapes.Polygon;
 import luxe.collision.shapes.Circle;
 import luxe.collision.CollisionData;
@@ -23,6 +24,8 @@ class Main extends luxe.Game
 	private var paddleCol:Polygon;
 	private var ball1Col:Circle;
 
+	private var once:Bool = true;
+
 	override function ready() {
 
 		paddle = new Sprite({
@@ -39,14 +42,11 @@ class Main extends luxe.Game
 			size: new Vector(16,16)
 		});
 
-		ball1Move = new Movement({name: 'ball1movement' });
-		ball1.add(ball1Move);
+		paddle.add(new CollisionRectComponent({name: "collisionrect"}));
+		ball1.add(new Movement({name: 'movement'}));
+		ball1.add(new CollisionCircleComponent({name: "collisioncircle"}));
 
-		paddleCol = Polygon.rectangle(paddle.pos.x,paddle.pos.y,128,32);
-		ball1Col = new Circle(ball1.pos.x,ball1.pos.y,16);
-
-		paddle.pos.y = Luxe.screen.h - 16;
-
+		paddle.pos.y = Luxe.screen.h - 32;
 	}
 	
 	override function onmousemove( event:MouseEvent ) {
@@ -64,19 +64,28 @@ class Main extends luxe.Game
 	}
 	
 	override function update( delta:Float ) {
-
-		ball1Move.velocity.y = 100;
 		
-		paddleCol.x = paddle.pos.x;
-		paddleCol.y = paddle.pos.y;
+		var move:Movement = cast ball1.get('movement');
+		var col1:Shape = cast paddle.get('collisionrect').collisionRect;
+		var col2:Shape = cast ball1.get('collisioncircle').collisionCircle;
 
-		ball1Col.x = paddle.pos.x;
-		ball1Col.y = ball1.pos.y;
-
-		if(Collision.test( paddleCol, ball1Col ) != null) {
-			trace("It's alive!");
+		if(once) {
+			move.velocity.y = -200;
+			once = false;
 		}
 		
+
+		var testcollision;
+		testcollision = Collision.test( col1, col2 );
+		
+		if(testcollision != null) {
+			move.velocity = Vector.Multiply(move.velocity, -1);
+			// ball1.pos = Vector.Subtract(ball1.pos, testcollision.separation);
+		}
+
+		if(ball1.pos.x > Luxe.screen.w || ball1.pos.x < 0 || ball1.pos.y < 0) {
+			move.velocity = Vector.Multiply(move.velocity, -1);
+		}
 	}
 	
 }

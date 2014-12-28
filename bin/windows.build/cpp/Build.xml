@@ -1676,6 +1676,46 @@
    <depend name="include/luxe/Objects.h"/>
    <depend name="include/luxe/components/Components.h"/>
   </file>
+  <file name="src/luxe/collision/shapes/Polygon.cpp">
+   <depend name="include/luxe/collision/shapes/Polygon.h"/>
+   <depend name="include/luxe/collision/shapes/Shape.h"/>
+   <depend name="include/phoenix/Vector.h"/>
+  </file>
+  <file name="src/luxe/collision/shapes/Circle.cpp">
+   <depend name="include/luxe/collision/shapes/Circle.h"/>
+   <depend name="include/luxe/collision/shapes/Shape.h"/>
+  </file>
+  <file name="src/luxe/collision/shapes/Shape.cpp">
+   <depend name="include/IMap.h"/>
+   <depend name="include/haxe/ds/StringMap.h"/>
+   <depend name="include/luxe/collision/shapes/Shape.h"/>
+   <depend name="include/phoenix/Matrix.h"/>
+   <depend name="include/phoenix/Quaternion.h"/>
+   <depend name="include/phoenix/Vector.h"/>
+  </file>
+  <file name="src/luxe/collision/ShapeDrawer.cpp">
+   <depend name="include/Std.h"/>
+   <depend name="include/luxe/collision/ShapeDrawer.h"/>
+   <depend name="include/luxe/collision/shapes/Circle.h"/>
+   <depend name="include/luxe/collision/shapes/Polygon.h"/>
+   <depend name="include/luxe/collision/shapes/Shape.h"/>
+   <depend name="include/phoenix/Color.h"/>
+   <depend name="include/phoenix/Vector.h"/>
+  </file>
+  <file name="src/luxe/collision/CollisionData.cpp">
+   <depend name="include/luxe/collision/CollisionData.h"/>
+   <depend name="include/luxe/collision/shapes/Shape.h"/>
+   <depend name="include/phoenix/Vector.h"/>
+  </file>
+  <file name="src/luxe/collision/Collision.cpp">
+   <depend name="include/Std.h"/>
+   <depend name="include/luxe/collision/Collision.h"/>
+   <depend name="include/luxe/collision/CollisionData.h"/>
+   <depend name="include/luxe/collision/shapes/Circle.h"/>
+   <depend name="include/luxe/collision/shapes/Polygon.h"/>
+   <depend name="include/luxe/collision/shapes/Shape.h"/>
+   <depend name="include/phoenix/Vector.h"/>
+  </file>
   <file name="src/luxe/Timer.cpp">
    <depend name="include/luxe/Core.h"/>
    <depend name="include/luxe/Timer.h"/>
@@ -1962,24 +2002,6 @@
   <file name="src/luxe/_Core/CoreThreadRequest.cpp">
    <depend name="include/luxe/_Core/CoreThreadRequest.h"/>
   </file>
-  <file name="src/luxe/Component.cpp">
-   <depend name="include/Luxe.h"/>
-   <depend name="include/luxe/Component.h"/>
-   <depend name="include/luxe/Emitter.h"/>
-   <depend name="include/luxe/Entity.h"/>
-   <depend name="include/luxe/ID.h"/>
-   <depend name="include/luxe/Objects.h"/>
-   <depend name="include/luxe/utils/Utils.h"/>
-   <depend name="include/phoenix/Quaternion.h"/>
-   <depend name="include/phoenix/Spatial.h"/>
-   <depend name="include/phoenix/Transform.h"/>
-   <depend name="include/phoenix/Vector.h"/>
-  </file>
-  <file name="src/luxe/ID.cpp">
-   <depend name="include/Luxe.h"/>
-   <depend name="include/luxe/ID.h"/>
-   <depend name="include/luxe/utils/Utils.h"/>
-  </file>
   <file name="src/luxe/Camera.cpp">
    <depend name="include/Luxe.h"/>
    <depend name="include/luxe/Camera.h"/>
@@ -2179,19 +2201,40 @@
   <file name="src/Reflect.cpp">
    <depend name="include/Reflect.h"/>
   </file>
+  <file name="src/Movement.cpp">
+   <depend name="include/Movement.h"/>
+   <depend name="include/luxe/Component.h"/>
+   <depend name="include/luxe/Emitter.h"/>
+   <depend name="include/luxe/Entity.h"/>
+   <depend name="include/luxe/ID.h"/>
+   <depend name="include/luxe/Objects.h"/>
+   <depend name="include/luxe/Sprite.h"/>
+   <depend name="include/luxe/Visual.h"/>
+   <depend name="include/phoenix/Vector.h"/>
+  </file>
   <file name="src/IMap.cpp">
    <depend name="include/IMap.h"/>
   </file>
   <file name="src/Main.cpp">
+   <depend name="include/CollisionCircleComponent.h"/>
+   <depend name="include/CollisionRectComponent.h"/>
    <depend name="include/Luxe.h"/>
    <depend name="include/Main.h"/>
+   <depend name="include/Movement.h"/>
+   <depend name="include/luxe/Component.h"/>
    <depend name="include/luxe/Emitter.h"/>
    <depend name="include/luxe/Entity.h"/>
    <depend name="include/luxe/Game.h"/>
+   <depend name="include/luxe/ID.h"/>
    <depend name="include/luxe/Objects.h"/>
    <depend name="include/luxe/Screen.h"/>
    <depend name="include/luxe/Sprite.h"/>
    <depend name="include/luxe/Visual.h"/>
+   <depend name="include/luxe/collision/Collision.h"/>
+   <depend name="include/luxe/collision/CollisionData.h"/>
+   <depend name="include/luxe/collision/shapes/Circle.h"/>
+   <depend name="include/luxe/collision/shapes/Polygon.h"/>
+   <depend name="include/luxe/collision/shapes/Shape.h"/>
    <depend name="include/phoenix/Color.h"/>
    <depend name="include/phoenix/Vector.h"/>
    <depend name="include/snow/input/Keycodes.h"/>
@@ -2279,6 +2322,52 @@
   </file>
   <file name="src/cpp/Lib.cpp">
    <depend name="include/cpp/Lib.h"/>
+  </file>
+  <file name="src/CollisionRectComponent.cpp">
+   <depend name="include/CollisionRectComponent.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/luxe/Component.h"/>
+   <depend name="include/luxe/Emitter.h"/>
+   <depend name="include/luxe/Entity.h"/>
+   <depend name="include/luxe/ID.h"/>
+   <depend name="include/luxe/Objects.h"/>
+   <depend name="include/luxe/Sprite.h"/>
+   <depend name="include/luxe/Visual.h"/>
+   <depend name="include/luxe/collision/shapes/Polygon.h"/>
+   <depend name="include/luxe/collision/shapes/Shape.h"/>
+   <depend name="include/phoenix/Vector.h"/>
+  </file>
+  <file name="src/CollisionCircleComponent.cpp">
+   <depend name="include/CollisionCircleComponent.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/luxe/Component.h"/>
+   <depend name="include/luxe/Emitter.h"/>
+   <depend name="include/luxe/Entity.h"/>
+   <depend name="include/luxe/ID.h"/>
+   <depend name="include/luxe/Objects.h"/>
+   <depend name="include/luxe/Sprite.h"/>
+   <depend name="include/luxe/Visual.h"/>
+   <depend name="include/luxe/collision/shapes/Circle.h"/>
+   <depend name="include/luxe/collision/shapes/Shape.h"/>
+   <depend name="include/phoenix/Vector.h"/>
+  </file>
+  <file name="src/luxe/Component.cpp">
+   <depend name="include/Luxe.h"/>
+   <depend name="include/luxe/Component.h"/>
+   <depend name="include/luxe/Emitter.h"/>
+   <depend name="include/luxe/Entity.h"/>
+   <depend name="include/luxe/ID.h"/>
+   <depend name="include/luxe/Objects.h"/>
+   <depend name="include/luxe/utils/Utils.h"/>
+   <depend name="include/phoenix/Quaternion.h"/>
+   <depend name="include/phoenix/Spatial.h"/>
+   <depend name="include/phoenix/Transform.h"/>
+   <depend name="include/phoenix/Vector.h"/>
+  </file>
+  <file name="src/luxe/ID.cpp">
+   <depend name="include/Luxe.h"/>
+   <depend name="include/luxe/ID.h"/>
+   <depend name="include/luxe/utils/Utils.h"/>
   </file>
   <file name="src/__boot__.cpp">
   </file>

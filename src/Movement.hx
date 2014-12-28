@@ -16,7 +16,7 @@ class Movement extends Component {
 
 	override function update( dt:Float ) {
 		//stuff all the time
-		sprite.pos = Vector.Add(sprite.pos, Vector.Multiply( velocity, dt));
+		sprite.pos = Vector.Add(sprite.pos, Vector.Multiply( velocity, dt ));
 	}
 
 	override function onreset() {
