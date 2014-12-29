@@ -5,11 +5,7 @@ import luxe.Sprite;
 import luxe.Color;
 import luxe.Vector;
 import luxe.tween.Actuate;
-import luxe.collision.shapes.Shape;
-import luxe.collision.shapes.Polygon;
-import luxe.collision.shapes.Circle;
-import luxe.collision.CollisionData;
-import luxe.collision.Collision;
+import luxe.Rectangle;
 /**
  * @author Desttinghim
  * null
@@ -18,11 +14,10 @@ import luxe.collision.Collision;
 class Main extends luxe.Game
 {
 	private var paddle:Sprite;
-	private var ball1:Sprite;
-	private var ball1Move:Movement;
+	private var ball0:Sprite;
 
-	private var paddleCol:Polygon;
-	private var ball1Col:Circle;
+	// private var blocks:Array<Sprite> = [];
+	private var collisionGroup:Array<Sprite> = [];
 
 	private var once:Bool = true;
 
@@ -35,16 +30,31 @@ class Main extends luxe.Game
 			size: new Vector(128, 32)
 		});
 
-		ball1 = new Sprite({
-			name: 'ball1',
+		ball0 = new Sprite({
+			name: 'ball0',
 			pos: Luxe.screen.mid,
 			color: new Color().rgb(0xffffff),
 			size: new Vector(16,16)
 		});
 
-		paddle.add(new CollisionRectComponent({name: "collisionrect"}));
-		ball1.add(new Movement({name: 'movement'}));
-		ball1.add(new CollisionCircleComponent({name: "collisioncircle"}));
+		for(i in 0...3) {
+			var block = new Sprite({
+				name: "block" + i,
+				pos: new Vector(Luxe.screen.w / 2, 32 + i*24),
+				color: new Color().rgb(0xffdddd),
+				size: new Vector(64,16)
+			});
+			block.add(new Hitbox(64,16));
+			block.add(new Destroyable());
+			collisionGroup.push(block);
+		}
+
+		paddle.add(new Hitbox(128,32));
+		ball0.add(new Hitbox(16,16));
+		ball0.add(new Movement(0,200));
+
+		collisionGroup.push(paddle);
+		collisionGroup.push(ball0);
 
 		paddle.pos.y = Luxe.screen.h - 32;
 	}
@@ -64,27 +74,65 @@ class Main extends luxe.Game
 	}
 	
 	override function update( delta:Float ) {
-		
-		var move:Movement = cast ball1.get('movement');
-		var col1:Shape = cast paddle.get('collisionrect').collisionRect;
-		var col2:Shape = cast ball1.get('collisioncircle').collisionCircle;
 
-		if(once) {
-			move.velocity.y = -200;
-			once = false;
+		//set up collision stuff
+		if(ball0.pos.x < 0 || ball0.pos.y < 0 || ball0.pos.x > Luxe.screen.w) {
+			ball0.get("movement").velocity.multiplyScalar(-1);
 		}
-		
+		collisionSystem();
 
-		var testcollision;
-		testcollision = Collision.test( col1, col2 );
-		
-		if(testcollision != null) {
-			move.velocity = Vector.Multiply(move.velocity, -1);
-			// ball1.pos = Vector.Subtract(ball1.pos, testcollision.separation);
+	}
+
+	private function collisionSystem() {
+
+		var collisions : Array<Sprite> = [];
+		var otherCollisions : Array<Sprite> = [];
+
+		for(i in collisionGroup) {
+			for(a in collisionGroup) {
+				if(theseCollide(i,a) && i != a) {
+					collisions.push(i);
+					otherCollisions.push(a);
+					trace("Collision!");
+				}
+			}
 		}
 
-		if(ball1.pos.x > Luxe.screen.w || ball1.pos.x < 0 || ball1.pos.y < 0) {
-			move.velocity = Vector.Multiply(move.velocity, -1);
+		for(i in collisions) {
+
+			if(i.components['movement'] != null) {
+
+				trace("\t\tMovement collision in " + i.name);
+				var other = otherCollisions[collisions.indexOf(i)];
+				var newVelocity;
+				newVelocity = new Vector(i.pos.x - other.pos.x, i.pos.y - other.pos.y);
+				i.get('movement').velocity = newVelocity.normalized.multiplyScalar(200);
+
+			} else if(i.components['destroyable'] != null) {
+
+				i.destroy();
+				collisionGroup.remove(i);
+				trace("\t\tDestruction collision in " + i.name);
+
+			} else {
+
+				trace("\t\tWeird collision in " + i.name );
+
+			}
+
+		}
+
+	}
+
+	private function theseCollide( spr1:Sprite, spr2:Sprite ):Bool {
+
+		var hitbox1 = spr1.get('hitbox').getHitbox();
+		var hitbox2 = spr2.get('hitbox').getHitbox();
+
+		if(hitbox1.overlaps(hitbox2)) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 	

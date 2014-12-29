@@ -152,23 +152,13 @@ luxe.Component.prototype = $extend(luxe.ID.prototype,{
 	,__class__: luxe.Component
 	,__properties__: {set_origin:"set_origin",get_origin:"get_origin",set_scale:"set_scale",get_scale:"get_scale",set_rotation:"set_rotation",get_rotation:"get_rotation",set_pos:"set_pos",get_pos:"get_pos",set_entity:"set_entity",get_entity:"get_entity"}
 });
-var CollisionCircleComponent = function(_options) {
-	luxe.Component.call(this,_options);
+var Destroyable = function() {
+	luxe.Component.call(this,{ name : "destroyable"});
 };
-CollisionCircleComponent.__name__ = true;
-CollisionCircleComponent.__super__ = luxe.Component;
-CollisionCircleComponent.prototype = $extend(luxe.Component.prototype,{
+Destroyable.__name__ = true;
+Destroyable.__super__ = luxe.Component;
+Destroyable.prototype = $extend(luxe.Component.prototype,{
 	init: function() {
-		this.sprite = this.get_entity();
-		this.collisionCircle = new luxe.collision.shapes.Circle(0,0,this.sprite.size.x);
-		this.collisionCircle.set_x(this.sprite.get_pos().x);
-		this.collisionCircle.set_y(this.sprite.get_pos().y);
-	}
-	,update: function(dt) {
-		this.collisionCircle.set_x(this.sprite.get_pos().x);
-		this.collisionCircle.set_y(this.sprite.get_pos().y);
-	}
-	,onreset: function() {
 	}
 	,ondestroy: function() {
 		luxe.Component.prototype.ondestroy.call(this);
@@ -176,34 +166,7 @@ CollisionCircleComponent.prototype = $extend(luxe.Component.prototype,{
 	,onremoved: function() {
 		luxe.Component.prototype.onremoved.call(this);
 	}
-	,__class__: CollisionCircleComponent
-});
-var CollisionRay = function(_options) {
-	luxe.Component.call(this,_options);
-};
-CollisionRay.__name__ = true;
-CollisionRay.__super__ = luxe.Component;
-CollisionRay.prototype = $extend(luxe.Component.prototype,{
-	init: function() {
-		this.sprite = this.get_entity();
-		this.updateline();
-	}
-	,update: function(dt) {
-		this.updateline();
-	}
-	,onreset: function() {
-	}
-	,updateline: function() {
-		this.linestart = new phoenix.Vector(this.sprite.get_pos().x - this.sprite.size.x / 2,this.sprite.get_pos().y - this.sprite.size.y / 2);
-		this.lineend = new phoenix.Vector(this.sprite.get_pos().x - this.sprite.size.x / 2,this.sprite.get_pos().y + this.sprite.size.y / 2);
-	}
-	,ondestroy: function() {
-		luxe.Component.prototype.ondestroy.call(this);
-	}
-	,onremoved: function() {
-		luxe.Component.prototype.onremoved.call(this);
-	}
-	,__class__: CollisionRay
+	,__class__: Destroyable
 });
 var EReg = function(r,opt) {
 	opt = opt.split("u").join("");
@@ -230,6 +193,29 @@ EReg.prototype = {
 	}
 	,__class__: EReg
 };
+var Hitbox = function(width,height) {
+	luxe.Component.call(this,{ name : "hitbox"});
+	this.rectangle = new phoenix.Rectangle(0,0,width,height);
+};
+Hitbox.__name__ = true;
+Hitbox.__super__ = luxe.Component;
+Hitbox.prototype = $extend(luxe.Component.prototype,{
+	init: function() {
+		this.sprite = this.get_entity();
+	}
+	,getHitbox: function() {
+		this.rectangle.set_x(this.sprite.get_pos().x - this.rectangle.w / 2);
+		this.rectangle.set_y(this.sprite.get_pos().y - this.rectangle.h / 2);
+		return this.rectangle;
+	}
+	,ondestroy: function() {
+		luxe.Component.prototype.ondestroy.call(this);
+	}
+	,onremoved: function() {
+		luxe.Component.prototype.onremoved.call(this);
+	}
+	,__class__: Hitbox
+});
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
@@ -646,6 +632,7 @@ luxe.Game.prototype = $extend(luxe.Emitter.prototype,{
 });
 var Main = function() {
 	this.once = true;
+	this.collisionGroup = [];
 	luxe.Game.call(this);
 };
 Main.__name__ = true;
@@ -653,10 +640,20 @@ Main.__super__ = luxe.Game;
 Main.prototype = $extend(luxe.Game.prototype,{
 	ready: function() {
 		this.paddle = new luxe.Sprite({ name : "paddle", pos : Luxe.get_screen().get_mid(), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(128,32)});
-		this.ball1 = new luxe.Sprite({ name : "ball1", pos : Luxe.get_screen().get_mid(), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(16,16)});
-		this.paddle.add(new CollisionRay({ name : "colray"}));
-		this.ball1.add(new Movement({ name : "movement"}));
-		this.ball1.add(new CollisionCircleComponent({ name : "collisioncircle"}));
+		this.ball0 = new luxe.Sprite({ name : "ball0", pos : Luxe.get_screen().get_mid(), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(16,16)});
+		var _g = 0;
+		while(_g < 3) {
+			var i = _g++;
+			var block = new luxe.Sprite({ name : "block" + i, pos : new phoenix.Vector(Luxe.get_screen().w / 2,32 + i * 24), color : new phoenix.Color().rgb(16768477), size : new phoenix.Vector(64,16)});
+			block.add(new Hitbox(64,16));
+			block.add(new Destroyable());
+			this.collisionGroup.push(block);
+		}
+		this.paddle.add(new Hitbox(128,32));
+		this.ball0.add(new Hitbox(16,16));
+		this.ball0.add(new Movement(0,200));
+		this.collisionGroup.push(this.paddle);
+		this.collisionGroup.push(this.ball0);
 		this.paddle.get_pos().set_y(Luxe.get_screen().h - 32);
 	}
 	,onmousemove: function(event) {
@@ -666,18 +663,60 @@ Main.prototype = $extend(luxe.Game.prototype,{
 		if(event.keycode == snow.input.Keycodes.escape) Luxe.shutdown();
 	}
 	,update: function(delta) {
-		var move = this.ball1.get("movement");
-		var linestart = this.paddle.get("colray").linestart;
-		var lineend = this.paddle.get("colray").lineend;
-		var col2 = this.ball1.get("collisioncircle").collisionCircle;
-		if(this.once) {
-			move.velocity.set_y(-200);
-			this.once = false;
+		if(this.ball0.get_pos().x < 0 || this.ball0.get_pos().y < 0 || this.ball0.get_pos().x > Luxe.get_screen().w) this.ball0.get("movement").velocity.multiplyScalar(-1);
+		this.collisionSystem();
+	}
+	,collisionSystem: function() {
+		var collisions = [];
+		var otherCollisions = [];
+		var _g = 0;
+		var _g1 = this.collisionGroup;
+		while(_g < _g1.length) {
+			var i = _g1[_g];
+			++_g;
+			var _g2 = 0;
+			var _g3 = this.collisionGroup;
+			while(_g2 < _g3.length) {
+				var a = _g3[_g2];
+				++_g2;
+				if(this.theseCollide(i,a) && i != a) {
+					collisions.push(i);
+					otherCollisions.push(a);
+					haxe.Log.trace("Collision!",{ fileName : "Main.hx", lineNumber : 96, className : "Main", methodName : "collisionSystem"});
+				}
+			}
 		}
-		var testcollision;
-		testcollision = luxe.collision.Collision.ray(linestart,lineend,[col2]);
-		if(testcollision) move.velocity = phoenix.Vector.Multiply(move.velocity,-1);
-		if(this.ball1.get_pos().x > Luxe.get_screen().w || this.ball1.get_pos().x < 0 || this.ball1.get_pos().y < 0) move.velocity = phoenix.Vector.Multiply(move.velocity,-1);
+		var _g4 = 0;
+		while(_g4 < collisions.length) {
+			var i1 = collisions[_g4];
+			++_g4;
+			if((function($this) {
+				var $r;
+				var this1 = i1.get_components();
+				$r = this1.get("movement");
+				return $r;
+			}(this)) != null) {
+				haxe.Log.trace("\t\tMovement collision in " + i1.name,{ fileName : "Main.hx", lineNumber : 105, className : "Main", methodName : "collisionSystem"});
+				var other = otherCollisions[HxOverrides.indexOf(collisions,i1,0)];
+				var newVelocity;
+				newVelocity = new phoenix.Vector(i1.get_pos().x - other.get_pos().x,i1.get_pos().y - other.get_pos().y);
+				i1.get("movement").velocity = phoenix.Vector.Divide(newVelocity,Math.sqrt(newVelocity.x * newVelocity.x + newVelocity.y * newVelocity.y + newVelocity.z * newVelocity.z)).multiplyScalar(200);
+			} else if((function($this) {
+				var $r;
+				var this2 = i1.get_components();
+				$r = this2.get("destroyable");
+				return $r;
+			}(this)) != null) {
+				i1.destroy();
+				HxOverrides.remove(this.collisionGroup,i1);
+				haxe.Log.trace("\t\tDestruction collision in " + i1.name,{ fileName : "Main.hx", lineNumber : 115, className : "Main", methodName : "collisionSystem"});
+			} else haxe.Log.trace("\t\tWeird collision in " + i1.name,{ fileName : "Main.hx", lineNumber : 119, className : "Main", methodName : "collisionSystem"});
+		}
+	}
+	,theseCollide: function(spr1,spr2) {
+		var hitbox1 = spr1.get("hitbox").getHitbox();
+		var hitbox2 = spr2.get("hitbox").getHitbox();
+		if(hitbox1.overlaps(hitbox2)) return true; else return false;
 	}
 	,__class__: Main
 });
@@ -687,15 +726,15 @@ IMap.prototype = {
 	__class__: IMap
 };
 Math.__name__ = true;
-var Movement = function(_options) {
-	luxe.Component.call(this,_options);
+var Movement = function(xspeed,yspeed) {
+	luxe.Component.call(this,{ name : "movement"});
+	this.velocity = new phoenix.Vector(xspeed,yspeed);
 };
 Movement.__name__ = true;
 Movement.__super__ = luxe.Component;
 Movement.prototype = $extend(luxe.Component.prototype,{
 	init: function() {
 		this.sprite = this.get_entity();
-		this.velocity = new phoenix.Vector();
 	}
 	,update: function(dt) {
 		this.sprite.set_pos(phoenix.Vector.Add(this.sprite.get_pos(),phoenix.Vector.Multiply(this.velocity,dt)));
@@ -4826,596 +4865,6 @@ luxe.Timer.prototype = {
 	}
 	,__class__: luxe.Timer
 };
-luxe.collision = {};
-luxe.collision.Collision = function() {
-	throw "Collision is a static class. No instances can be created.";
-};
-luxe.collision.Collision.__name__ = true;
-luxe.collision.Collision.test = function(shape1,shape2) {
-	if(shape1 == shape2) return null;
-	var result1;
-	var result2;
-	if(js.Boot.__instanceof(shape1,luxe.collision.shapes.Circle) && js.Boot.__instanceof(shape2,luxe.collision.shapes.Circle)) return luxe.collision.Collision.checkCircles(js.Boot.__cast(shape1 , luxe.collision.shapes.Circle),js.Boot.__cast(shape2 , luxe.collision.shapes.Circle));
-	if(js.Boot.__instanceof(shape1,luxe.collision.shapes.Polygon) && js.Boot.__instanceof(shape2,luxe.collision.shapes.Polygon)) {
-		result1 = luxe.collision.Collision.checkPolygons(js.Boot.__cast(shape1 , luxe.collision.shapes.Polygon),js.Boot.__cast(shape2 , luxe.collision.shapes.Polygon),false);
-		if(result1 == null) return null;
-		result2 = luxe.collision.Collision.checkPolygons(js.Boot.__cast(shape2 , luxe.collision.shapes.Polygon),js.Boot.__cast(shape1 , luxe.collision.shapes.Polygon),true);
-		if(result2 == null) return null;
-		if(Math.abs(result1.overlap) < Math.abs(result2.overlap)) return result1; else return result2;
-	}
-	if(js.Boot.__instanceof(shape1,luxe.collision.shapes.Circle)) return luxe.collision.Collision.checkCircleVsPolygon(js.Boot.__cast(shape1 , luxe.collision.shapes.Circle),js.Boot.__cast(shape2 , luxe.collision.shapes.Polygon),true);
-	if(js.Boot.__instanceof(shape1,luxe.collision.shapes.Polygon)) return luxe.collision.Collision.checkCircleVsPolygon(js.Boot.__cast(shape2 , luxe.collision.shapes.Circle),js.Boot.__cast(shape1 , luxe.collision.shapes.Polygon),false);
-	return null;
-};
-luxe.collision.Collision.testShapes = function(shape1,shapes) {
-	var results = [];
-	var _g = 0;
-	while(_g < shapes.length) {
-		var other_shape = shapes[_g];
-		++_g;
-		var result = luxe.collision.Collision.test(shape1,other_shape);
-		if(result != null) results.push(result);
-	}
-	return results;
-};
-luxe.collision.Collision.ray = function(lineStart,lineEnd,shapes) {
-	var _g = 0;
-	while(_g < shapes.length) {
-		var _shape = shapes[_g];
-		++_g;
-		if(js.Boot.__instanceof(_shape,luxe.collision.shapes.Circle)) {
-			if(luxe.collision.Collision.testCircleLine(_shape,lineStart,lineEnd)) return true;
-		} else {
-			var line = luxe.collision.Collision.bresenhamLine(lineStart,lineEnd);
-			var _g1 = 0;
-			while(_g1 < line.length) {
-				var _point = line[_g1];
-				++_g1;
-				if(luxe.collision.Collision.pointInPoly(_point,_shape)) return true;
-			}
-		}
-	}
-	return false;
-};
-luxe.collision.Collision.testCircleLine = function(circle,lineStart,lineEnd) {
-	var d = new phoenix.Vector(lineEnd.x,lineEnd.y,lineEnd.z,lineEnd.w).subtract(lineStart);
-	var f = new phoenix.Vector(lineStart.x,lineStart.y,lineStart.z,lineStart.w).subtract(circle.get_position());
-	var a = d.x * d.x + d.y * d.y + d.z * d.z;
-	var b = 2 * (f.x * d.x + f.y * d.y + f.z * d.z);
-	var c = f.x * f.x + f.y * f.y + f.z * f.z - circle.get_radius() * circle.get_radius();
-	var discrm = b * b - 4 * a * c;
-	if(discrm < 0) return false; else {
-		discrm = Math.sqrt(discrm);
-		var t1 = (-b + discrm) / (2 * a);
-		var t2 = (-b - discrm) / (2 * a);
-		if(t1 >= 0 && t1 <= 1) return true; else return false;
-	}
-	return false;
-};
-luxe.collision.Collision.pointInPoly = function(point,poly) {
-	var sides = poly.get_transformedVertices().length;
-	var i = 0;
-	var j = sides - 1;
-	var oddNodes = false;
-	var _g = 0;
-	while(_g < sides) {
-		var i1 = _g++;
-		if(poly.get_transformedVertices()[i1].y < point.y && poly.get_transformedVertices()[j].y >= point.y || poly.get_transformedVertices()[j].y < point.y && poly.get_transformedVertices()[i1].y >= point.y) {
-			if(poly.get_transformedVertices()[i1].x + (point.y - poly.get_transformedVertices()[i1].y) / (poly.get_transformedVertices()[j].y - poly.get_transformedVertices()[i1].y) * (poly.get_transformedVertices()[j].x - poly.get_transformedVertices()[i1].x) < point.x) oddNodes = !oddNodes;
-		}
-		j = i1;
-	}
-	return oddNodes;
-};
-luxe.collision.Collision.bresenhamLine = function(start,end) {
-	var points = [];
-	var steep = Math.abs(end.y - start.y) > Math.abs(end.x - start.x);
-	var swapped = false;
-	if(steep) {
-		start = luxe.collision.Collision.swap(start.x,start.y);
-		end = luxe.collision.Collision.swap(end.x,end.y);
-	}
-	if(start.x > end.x) {
-		var t = start.x;
-		start.set_x(end.x);
-		end.x = t;
-		if(end._construct) end.x; else {
-			if(end.listen_x != null && !end.ignore_listeners) end.listen_x(t);
-			end.x;
-		}
-		t = start.y;
-		start.set_y(end.y);
-		end.y = t;
-		if(end._construct) end.y; else {
-			if(end.listen_y != null && !end.ignore_listeners) end.listen_y(t);
-			end.y;
-		}
-		swapped = true;
-	}
-	var deltax = end.x - start.x;
-	var deltay = Math.abs(end.y - start.y);
-	var error = deltax / 2;
-	var ystep;
-	var y = start.y;
-	if(start.y < end.y) ystep = 1; else ystep = -1;
-	var x = start.x | 0;
-	var _g1 = start.x | 0;
-	var _g = end.x | 0;
-	while(_g1 < _g) {
-		var x1 = _g1++;
-		if(steep) points.push(new phoenix.Vector(y,x1)); else points.push(new phoenix.Vector(x1,y));
-		error -= deltay;
-		if(error < 0) {
-			y += ystep;
-			error += deltax;
-		}
-	}
-	if(swapped) points.reverse();
-	return points;
-};
-luxe.collision.Collision.checkCircleVsPolygon = function(circle,polygon,flip) {
-	var test1;
-	var test2;
-	var test;
-	var min1 = 0;
-	var max1 = 1073741823;
-	var min2 = 0;
-	var max2 = 1073741823;
-	var normalAxis = new phoenix.Vector();
-	var offset;
-	var vectorOffset = new phoenix.Vector();
-	var vectors;
-	var shortestDistance = 1073741823;
-	var collisionData = new luxe.collision.CollisionData();
-	var distMin;
-	var distance = -1;
-	var testDistance = 1073741823;
-	var closestVector = new phoenix.Vector();
-	vectorOffset = new phoenix.Vector(-circle.get_x(),-circle.get_y());
-	var _this = polygon.get_transformedVertices();
-	vectors = _this.slice();
-	if(vectors.length == 2) {
-		var temp = new phoenix.Vector(-(vectors[1].y - vectors[0].y),vectors[1].x - vectors[0].x);
-		temp.set_length(Math.min(0.0000000001,Math.sqrt(temp.x * temp.x + temp.y * temp.y + temp.z * temp.z)));
-		temp;
-		vectors.push(vectors[1].clone().add(temp));
-	}
-	var _g1 = 0;
-	var _g = vectors.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		distance = (circle.get_x() - vectors[i].x) * (circle.get_x() - vectors[i].x) + (circle.get_y() - vectors[i].y) * (circle.get_y() - vectors[i].y);
-		if(distance < testDistance) {
-			testDistance = distance;
-			closestVector.set_x(vectors[i].x);
-			closestVector.set_y(vectors[i].y);
-		}
-	}
-	normalAxis = new phoenix.Vector(closestVector.x - circle.get_x(),closestVector.y - circle.get_y());
-	normalAxis.divideScalar(Math.sqrt(normalAxis.x * normalAxis.x + normalAxis.y * normalAxis.y + normalAxis.z * normalAxis.z));
-	min1 = normalAxis.dot(vectors[0]);
-	max1 = min1;
-	var _g11 = 1;
-	var _g2 = vectors.length;
-	while(_g11 < _g2) {
-		var j = _g11++;
-		test = normalAxis.dot(vectors[j]);
-		if(test < min1) min1 = test;
-		if(test > max1) max1 = test;
-	}
-	max2 = circle.get_transformedRadius();
-	min2 -= circle.get_transformedRadius();
-	offset = normalAxis.x * vectorOffset.x + normalAxis.y * vectorOffset.y + normalAxis.z * vectorOffset.z;
-	min1 += offset;
-	max1 += offset;
-	test1 = min1 - max2;
-	test2 = min2 - max1;
-	if(test1 > 0 || test2 > 0) return null;
-	distMin = -(max2 - min1);
-	if(flip) distMin *= -1;
-	if(Math.abs(distMin) < shortestDistance) {
-		collisionData.unitVector = normalAxis;
-		collisionData.overlap = distMin;
-		shortestDistance = Math.abs(distMin);
-	}
-	var _g12 = 0;
-	var _g3 = vectors.length;
-	while(_g12 < _g3) {
-		var i1 = _g12++;
-		normalAxis = luxe.collision.Collision.findNormalAxis(vectors,i1);
-		min1 = normalAxis.dot(vectors[0]);
-		max1 = min1;
-		var _g31 = 1;
-		var _g21 = vectors.length;
-		while(_g31 < _g21) {
-			var j1 = _g31++;
-			test = normalAxis.dot(vectors[j1]);
-			if(test < min1) min1 = test;
-			if(test > max1) max1 = test;
-		}
-		max2 = circle.get_transformedRadius();
-		min2 = -circle.get_transformedRadius();
-		offset = normalAxis.x * vectorOffset.x + normalAxis.y * vectorOffset.y + normalAxis.z * vectorOffset.z;
-		min1 += offset;
-		max1 += offset;
-		test1 = min1 - max2;
-		test2 = min2 - max1;
-		if(test1 > 0 || test2 > 0) return null;
-		distMin = -(max2 - min1);
-		if(flip) distMin *= -1;
-		if(Math.abs(distMin) < shortestDistance) {
-			collisionData.unitVector = normalAxis;
-			collisionData.overlap = distMin;
-			shortestDistance = Math.abs(distMin);
-		}
-	}
-	if(flip) collisionData.shape2 = polygon; else collisionData.shape2 = circle;
-	if(flip) collisionData.shape1 = circle; else collisionData.shape1 = polygon;
-	collisionData.separation = new phoenix.Vector(-collisionData.unitVector.x * collisionData.overlap,-collisionData.unitVector.y * collisionData.overlap);
-	if(flip) collisionData.unitVector.invert();
-	return collisionData;
-};
-luxe.collision.Collision.checkCircles = function(circle1,circle2) {
-	var totalRadius = circle1.get_transformedRadius() + circle2.get_transformedRadius();
-	var distanceSquared = (circle1.get_x() - circle2.get_x()) * (circle1.get_x() - circle2.get_x()) + (circle1.get_y() - circle2.get_y()) * (circle1.get_y() - circle2.get_y());
-	if(distanceSquared < totalRadius * totalRadius) {
-		var difference = totalRadius - Math.sqrt(distanceSquared);
-		var collisionData = new luxe.collision.CollisionData();
-		collisionData.shape1 = circle1;
-		collisionData.shape2 = circle2;
-		collisionData.unitVector = new phoenix.Vector(circle1.get_x() - circle2.get_x(),circle1.get_y() - circle2.get_y());
-		collisionData.unitVector.normalize();
-		collisionData.separation = new phoenix.Vector(collisionData.unitVector.x * difference,collisionData.unitVector.y * difference);
-		collisionData.overlap = collisionData.separation.get_length();
-		return collisionData;
-	}
-	return null;
-};
-luxe.collision.Collision.checkPolygons = function(polygon1,polygon2,flip) {
-	var test1;
-	var test2;
-	var testNum;
-	var min1;
-	var max1;
-	var min2;
-	var max2;
-	var axis;
-	var offset;
-	var vectors1;
-	var vectors2;
-	var shortestDistance = 1073741823;
-	var collisionData = new luxe.collision.CollisionData();
-	var _this = polygon1.get_transformedVertices();
-	vectors1 = _this.slice();
-	var _this1 = polygon2.get_transformedVertices();
-	vectors2 = _this1.slice();
-	if(vectors1.length == 2) {
-		var temp = new phoenix.Vector(-(vectors1[1].y - vectors1[0].y),vectors1[1].x - vectors1[0].x);
-		temp.set_length(Math.min(0.0000000001,Math.sqrt(temp.x * temp.x + temp.y * temp.y + temp.z * temp.z)));
-		temp;
-		vectors1.push(vectors1[1].add(temp));
-	}
-	if(vectors2.length == 2) {
-		var temp1 = new phoenix.Vector(-(vectors2[1].y - vectors2[0].y),vectors2[1].x - vectors2[0].x);
-		temp1.set_length(Math.min(0.0000000001,Math.sqrt(temp1.x * temp1.x + temp1.y * temp1.y + temp1.z * temp1.z)));
-		temp1;
-		vectors2.push(vectors2[1].add(temp1));
-	}
-	var _g1 = 0;
-	var _g = vectors1.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		axis = luxe.collision.Collision.findNormalAxis(vectors1,i);
-		min1 = axis.dot(vectors1[0]);
-		max1 = min1;
-		var _g3 = 1;
-		var _g2 = vectors1.length;
-		while(_g3 < _g2) {
-			var j = _g3++;
-			testNum = axis.dot(vectors1[j]);
-			if(testNum < min1) min1 = testNum;
-			if(testNum > max1) max1 = testNum;
-		}
-		min2 = axis.dot(vectors2[0]);
-		max2 = min2;
-		var _g31 = 1;
-		var _g21 = vectors2.length;
-		while(_g31 < _g21) {
-			var j1 = _g31++;
-			testNum = axis.dot(vectors2[j1]);
-			if(testNum < min2) min2 = testNum;
-			if(testNum > max2) max2 = testNum;
-		}
-		test1 = min1 - max2;
-		test2 = min2 - max1;
-		if(test1 > 0 || test2 > 0) return null;
-		var distMin = -(max2 - min1);
-		if(flip) distMin *= -1;
-		if(Math.abs(distMin) < shortestDistance) {
-			collisionData.unitVector = axis;
-			collisionData.overlap = distMin;
-			shortestDistance = Math.abs(distMin);
-		}
-	}
-	if(flip) collisionData.shape1 = polygon2; else collisionData.shape1 = polygon1;
-	if(flip) collisionData.shape2 = polygon1; else collisionData.shape2 = polygon2;
-	collisionData.separation = new phoenix.Vector(-collisionData.unitVector.x * collisionData.overlap,-collisionData.unitVector.y * collisionData.overlap);
-	if(flip) collisionData.unitVector.invert();
-	return collisionData;
-};
-luxe.collision.Collision.findNormalAxis = function(vertices,index) {
-	var vector1 = vertices[index];
-	var vector2;
-	if(index >= vertices.length - 1) vector2 = vertices[0]; else vector2 = vertices[index + 1];
-	var normalAxis = new phoenix.Vector(-(vector2.y - vector1.y),vector2.x - vector1.x);
-	normalAxis.divideScalar(Math.sqrt(normalAxis.x * normalAxis.x + normalAxis.y * normalAxis.y + normalAxis.z * normalAxis.z));
-	return normalAxis;
-};
-luxe.collision.Collision.swap = function(a,b) {
-	var t = a;
-	a = b;
-	b = t;
-	return new phoenix.Vector(a,b);
-};
-luxe.collision.Collision.prototype = {
-	__class__: luxe.collision.Collision
-};
-luxe.collision.CollisionData = function() {
-	this.overlap = 0;
-	this.separation = new phoenix.Vector();
-	this.unitVector = new phoenix.Vector();
-};
-luxe.collision.CollisionData.__name__ = true;
-luxe.collision.CollisionData.prototype = {
-	__class__: luxe.collision.CollisionData
-};
-luxe.collision.ShapeDrawer = function() {
-};
-luxe.collision.ShapeDrawer.__name__ = true;
-luxe.collision.ShapeDrawer.prototype = {
-	drawLine: function(p0,p1,color,immediate) {
-		if(immediate == null) immediate = false;
-	}
-	,drawShape: function(shape) {
-		if(js.Boot.__instanceof(shape,luxe.collision.shapes.Polygon)) {
-			this.drawPolygon(js.Boot.__cast(shape , luxe.collision.shapes.Polygon));
-			return;
-		} else {
-			this.drawCircle(js.Boot.__cast(shape , luxe.collision.shapes.Circle));
-			return;
-		}
-	}
-	,drawPolygon: function(poly,color,immediate) {
-		if(immediate == null) immediate = false;
-		var v;
-		var _this = poly.get_transformedVertices();
-		v = _this.slice();
-		this.drawVertList(v,color,immediate);
-	}
-	,drawVector: function(v,start,color,immediate) {
-		if(immediate == null) immediate = false;
-		this.drawLine(start,v,color,immediate);
-	}
-	,drawCircle: function(circle,color,immediate) {
-		if(immediate == null) immediate = false;
-		var _smooth = 10;
-		var _steps = Std.int(_smooth * Math.sqrt(circle.get_transformedRadius()));
-		var theta = 6.2831852 / _steps;
-		var tangential_factor = Math.tan(theta);
-		var radial_factor = Math.cos(theta);
-		var x = circle.get_transformedRadius();
-		var y = 0;
-		var _verts = [];
-		var _g = 0;
-		while(_g < _steps) {
-			var i = _g++;
-			var __x = x + circle.get_x();
-			var __y = y + circle.get_y();
-			_verts.push(new phoenix.Vector(__x,__y));
-			var tx = -y;
-			var ty = x;
-			x += tx * tangential_factor;
-			y += ty * tangential_factor;
-			x *= radial_factor;
-			y *= radial_factor;
-		}
-		this.drawVertList(_verts,color,immediate);
-	}
-	,drawVertList: function(_verts,color,immediate) {
-		if(immediate == null) immediate = false;
-		var _count = _verts.length;
-		if(_count < 3) throw "cannot draw polygon with < 3 verts as this is a line or a point.";
-		var _g = 1;
-		while(_g < _count) {
-			var i = _g++;
-			this.drawLine(_verts[i],_verts[i - 1],color,immediate);
-		}
-		this.drawLine(_verts[_count - 1],_verts[0],color,immediate);
-	}
-	,__class__: luxe.collision.ShapeDrawer
-};
-luxe.collision.shapes = {};
-luxe.collision.shapes.Shape = function(_x,_y) {
-	this._transformed = false;
-	this._scaleY = 1;
-	this._scaleX = 1;
-	this._rotation_radians = 0;
-	this._rotation = 0;
-	this.name = "shape";
-	this.active = true;
-	this.tags = new haxe.ds.StringMap();
-	this._position = new phoenix.Vector(_x,_y);
-	this._scale = new phoenix.Vector(1,1);
-	this._rotation_quat = new phoenix.Quaternion();
-	this._rotation = 0;
-	this._scaleX = 1;
-	this._scaleY = 1;
-	this._transformMatrix = new phoenix.Matrix();
-	this._transformMatrix.makeTranslation(this._position.x,this._position.y,0);
-	this._transformedVertices = new Array();
-	this._vertices = new Array();
-};
-luxe.collision.shapes.Shape.__name__ = true;
-luxe.collision.shapes.Shape.prototype = {
-	destroy: function() {
-		this._position = null;
-		this._scale = null;
-		this._transformMatrix = null;
-		this._transformedVertices = null;
-		this._vertices = null;
-	}
-	,refresh_transform: function() {
-		this._rotation_quat.setFromEuler(new phoenix.Vector(0,0,this._rotation_radians));
-		this._transformMatrix.compose(this._position,this._rotation_quat,this._scale);
-		this._transformed = false;
-	}
-	,get_position: function() {
-		return this._position;
-	}
-	,set_position: function(v) {
-		this._position = v;
-		this.refresh_transform();
-		return this._position;
-	}
-	,get_x: function() {
-		return this._position.x;
-	}
-	,set_x: function(x) {
-		this._position.set_x(x);
-		this.refresh_transform();
-		return this._position.x;
-	}
-	,get_y: function() {
-		return this._position.y;
-	}
-	,set_y: function(y) {
-		this._position.set_y(y);
-		this.refresh_transform();
-		return this._position.y;
-	}
-	,get_rotation: function() {
-		return this._rotation;
-	}
-	,set_rotation: function(v) {
-		this._rotation_radians = v * (Math.PI / 180);
-		this.refresh_transform();
-		return this._rotation = v;
-	}
-	,get_scaleX: function() {
-		return this._scaleX;
-	}
-	,set_scaleX: function(scale) {
-		this._scaleX = scale;
-		this._scale.set_x(this._scaleX);
-		this.refresh_transform();
-		return this._scaleX;
-	}
-	,get_scaleY: function() {
-		return this._scaleY;
-	}
-	,set_scaleY: function(scale) {
-		this._scaleY = scale;
-		this._scale.set_y(this._scaleY);
-		this.refresh_transform();
-		return this._scaleY;
-	}
-	,get_transformedVertices: function() {
-		if(!this._transformed) {
-			this._transformedVertices = new Array();
-			this._transformed = true;
-			var _count = this._vertices.length;
-			var _g = 0;
-			while(_g < _count) {
-				var i = _g++;
-				this._transformedVertices.push(this._vertices[i].clone().transform(this._transformMatrix));
-			}
-		}
-		return this._transformedVertices;
-	}
-	,get_vertices: function() {
-		return this._vertices;
-	}
-	,__class__: luxe.collision.shapes.Shape
-	,__properties__: {get_vertices:"get_vertices",get_transformedVertices:"get_transformedVertices",set_scaleY:"set_scaleY",get_scaleY:"get_scaleY",set_scaleX:"set_scaleX",get_scaleX:"get_scaleX",set_rotation:"set_rotation",get_rotation:"get_rotation",set_y:"set_y",get_y:"get_y",set_x:"set_x",get_x:"get_x",set_position:"set_position",get_position:"get_position"}
-};
-luxe.collision.shapes.Circle = function(x,y,radius) {
-	luxe.collision.shapes.Shape.call(this,x,y);
-	this._radius = radius;
-	this.name = "circle " + this._radius;
-};
-luxe.collision.shapes.Circle.__name__ = true;
-luxe.collision.shapes.Circle.__super__ = luxe.collision.shapes.Shape;
-luxe.collision.shapes.Circle.prototype = $extend(luxe.collision.shapes.Shape.prototype,{
-	get_radius: function() {
-		return this._radius;
-	}
-	,get_transformedRadius: function() {
-		return this._radius * this.get_scaleX();
-	}
-	,__class__: luxe.collision.shapes.Circle
-	,__properties__: $extend(luxe.collision.shapes.Shape.prototype.__properties__,{get_transformedRadius:"get_transformedRadius",get_radius:"get_radius"})
-});
-luxe.collision.shapes.Polygon = function(x,y,vertices) {
-	luxe.collision.shapes.Shape.call(this,x,y);
-	this.name = vertices.length + "polygon";
-	this._vertices = vertices;
-};
-luxe.collision.shapes.Polygon.__name__ = true;
-luxe.collision.shapes.Polygon.create = function(x,y,sides,radius) {
-	if(radius == null) radius = 100;
-	if(sides < 3) throw "Polygon - Needs at least 3 sides";
-	var rotation = Math.PI * 2 / sides;
-	var angle;
-	var vector;
-	var vertices = new Array();
-	var _g = 0;
-	while(_g < sides) {
-		var i = _g++;
-		angle = i * rotation + (Math.PI - rotation) * 0.5;
-		vector = new phoenix.Vector();
-		vector.set_x(Math.cos(angle) * radius);
-		vector.set_y(Math.sin(angle) * radius);
-		vertices.push(vector);
-	}
-	return new luxe.collision.shapes.Polygon(x,y,vertices);
-};
-luxe.collision.shapes.Polygon.rectangle = function(x,y,width,height,centered) {
-	if(centered == null) centered = true;
-	var vertices = new Array();
-	if(centered) {
-		vertices.push(new phoenix.Vector(-width / 2,-height / 2));
-		vertices.push(new phoenix.Vector(width / 2,-height / 2));
-		vertices.push(new phoenix.Vector(width / 2,height / 2));
-		vertices.push(new phoenix.Vector(-width / 2,height / 2));
-	} else {
-		vertices.push(new phoenix.Vector(0,0));
-		vertices.push(new phoenix.Vector(width,0));
-		vertices.push(new phoenix.Vector(width,height));
-		vertices.push(new phoenix.Vector(0,height));
-	}
-	return new luxe.collision.shapes.Polygon(x,y,vertices);
-};
-luxe.collision.shapes.Polygon.square = function(x,y,width,centered) {
-	if(centered == null) centered = true;
-	return luxe.collision.shapes.Polygon.rectangle(x,y,width,width,centered);
-};
-luxe.collision.shapes.Polygon.triangle = function(x,y,radius) {
-	return luxe.collision.shapes.Polygon.create(x,y,3,radius);
-};
-luxe.collision.shapes.Polygon.__super__ = luxe.collision.shapes.Shape;
-luxe.collision.shapes.Polygon.prototype = $extend(luxe.collision.shapes.Shape.prototype,{
-	destroy: function() {
-		var _count = this._vertices.length;
-		var _g = 0;
-		while(_g < _count) {
-			var i = _g++;
-			this._vertices[i] = null;
-		}
-		this._vertices = null;
-		luxe.collision.shapes.Shape.prototype.destroy.call(this);
-	}
-	,__class__: luxe.collision.shapes.Polygon
-});
 luxe.components = {};
 luxe.components.Components = function(_entity) {
 	this.components = new haxe.ds.StringMap();
