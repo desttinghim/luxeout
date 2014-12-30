@@ -7,12 +7,14 @@ class Movement extends Component {
 
 	public var velocity:Vector;
 	private var sprite:Sprite;
+	private var maxVelocity:Float;
 	
-	public function new( xspeed:Float, yspeed:Float ):Void {
+	public function new( xspeed:Float, yspeed:Float, maxSpeed ):Void {
 
 		super({name:"movement"});
 
 		velocity = new Vector(xspeed,yspeed);
+		maxVelocity = maxSpeed;
 	}
 	override function init() {
 		//the function that started it all
@@ -22,6 +24,9 @@ class Movement extends Component {
 	override function update( dt:Float ) {
 		//stuff all the time
 		sprite.pos = Vector.Add(sprite.pos, Vector.Multiply( velocity, dt ));
+		if(velocity.length > maxVelocity) {
+			velocity.length = maxVelocity;
+		}
 	}
 
 	override function onreset() {
