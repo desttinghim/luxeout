@@ -9,16 +9,16 @@ class Movement extends Component {
 	private var sprite:Sprite;
 	private var maxVelocity:Float;
 	
-	public function new( xspeed:Float, yspeed:Float, maxSpeed ):Void {
+	public function new( xspeed, yspeed, maxSpeed, whichSprite ):Void {
 
 		super({name:"movement"});
 
 		velocity = new Vector(xspeed,yspeed);
 		maxVelocity = maxSpeed;
+		sprite = whichSprite;
 	}
 	override function init() {
 		//the function that started it all
-		sprite = cast entity;
 	}
 
 	override function update( dt:Float ) {

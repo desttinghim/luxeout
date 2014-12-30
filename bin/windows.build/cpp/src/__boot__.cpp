@@ -195,12 +195,6 @@
 #include <luxe/debug/BatcherDebugView.h>
 #include <luxe/debug/DebugView.h>
 #include <luxe/components/Components.h>
-#include <luxe/collision/shapes/Polygon.h>
-#include <luxe/collision/shapes/Circle.h>
-#include <luxe/collision/shapes/Shape.h>
-#include <luxe/collision/ShapeDrawer.h>
-#include <luxe/collision/CollisionData.h>
-#include <luxe/collision/Collision.h>
 #include <luxe/Timer.h>
 #include <luxe/Text.h>
 #include <luxe/Cursor.h>
@@ -274,10 +268,10 @@
 #include <Luxe.h>
 #include <List.h>
 #include <Lambda.h>
+#include <Hitbox.h>
 #include <EReg.h>
 #include <cpp/Lib.h>
-#include <CollisionRectComponent.h>
-#include <CollisionCircleComponent.h>
+#include <Destroyable.h>
 #include <luxe/Component.h>
 #include <luxe/ID.h>
 
@@ -482,12 +476,6 @@ hx::RegisterResources( hx::GetResources() );
 ::luxe::debug::BatcherDebugView_obj::__register();
 ::luxe::debug::DebugView_obj::__register();
 ::luxe::components::Components_obj::__register();
-::luxe::collision::shapes::Polygon_obj::__register();
-::luxe::collision::shapes::Circle_obj::__register();
-::luxe::collision::shapes::Shape_obj::__register();
-::luxe::collision::ShapeDrawer_obj::__register();
-::luxe::collision::CollisionData_obj::__register();
-::luxe::collision::Collision_obj::__register();
 ::luxe::Timer_obj::__register();
 ::luxe::Text_obj::__register();
 ::luxe::Cursor_obj::__register();
@@ -561,10 +549,10 @@ hx::RegisterResources( hx::GetResources() );
 ::Luxe_obj::__register();
 ::List_obj::__register();
 ::Lambda_obj::__register();
+::Hitbox_obj::__register();
 ::EReg_obj::__register();
 ::cpp::Lib_obj::__register();
-::CollisionRectComponent_obj::__register();
-::CollisionCircleComponent_obj::__register();
+::Destroyable_obj::__register();
 ::luxe::Component_obj::__register();
 ::luxe::ID_obj::__register();
 ::hxcpp::StaticRegexp_obj::__init__();
@@ -578,8 +566,8 @@ hx::RegisterResources( hx::GetResources() );
 ::haxe::Log_obj::__boot();
 ::luxe::ID_obj::__boot();
 ::luxe::Component_obj::__boot();
-::CollisionCircleComponent_obj::__boot();
-::CollisionRectComponent_obj::__boot();
+::Destroyable_obj::__boot();
+::Hitbox_obj::__boot();
 ::Lambda_obj::__boot();
 ::List_obj::__boot();
 ::Luxe_obj::__boot();
@@ -651,12 +639,6 @@ hx::RegisterResources( hx::GetResources() );
 ::luxe::Cursor_obj::__boot();
 ::luxe::Text_obj::__boot();
 ::luxe::Timer_obj::__boot();
-::luxe::collision::Collision_obj::__boot();
-::luxe::collision::CollisionData_obj::__boot();
-::luxe::collision::ShapeDrawer_obj::__boot();
-::luxe::collision::shapes::Shape_obj::__boot();
-::luxe::collision::shapes::Circle_obj::__boot();
-::luxe::collision::shapes::Polygon_obj::__boot();
 ::luxe::components::Components_obj::__boot();
 ::luxe::debug::DebugView_obj::__boot();
 ::luxe::debug::BatcherDebugView_obj::__boot();

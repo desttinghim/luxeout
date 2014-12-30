@@ -22,12 +22,12 @@ class HXCPP_CLASS_ATTRIBUTES  Movement_obj : public ::luxe::Component_obj{
 		typedef ::luxe::Component_obj super;
 		typedef Movement_obj OBJ_;
 		Movement_obj();
-		Void __construct(Dynamic _options);
+		Void __construct(Float xspeed,Float yspeed,Float maxSpeed,::luxe::Sprite whichSprite);
 
 	public:
 		inline void *operator new( size_t inSize, bool inContainer=true)
 			{ return hx::Object::operator new(inSize,inContainer); }
-		static hx::ObjectPtr< Movement_obj > __new(Dynamic _options);
+		static hx::ObjectPtr< Movement_obj > __new(Float xspeed,Float yspeed,Float maxSpeed,::luxe::Sprite whichSprite);
 		static Dynamic __CreateEmpty();
 		static Dynamic __Create(hx::DynamicArray inArgs);
 		//~Movement_obj();
@@ -41,6 +41,7 @@ class HXCPP_CLASS_ATTRIBUTES  Movement_obj : public ::luxe::Component_obj{
 
 		::phoenix::Vector velocity;
 		::luxe::Sprite sprite;
+		Float maxVelocity;
 		virtual Void init( );
 
 		virtual Void update( Float dt);

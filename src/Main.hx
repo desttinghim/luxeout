@@ -6,6 +6,7 @@ import luxe.Color;
 import luxe.Vector;
 import luxe.tween.Actuate;
 import luxe.Rectangle;
+import luxe.AppConfig;
 
 //CURRENT PROJECT: Get collision resolution figured out
 
@@ -24,32 +25,49 @@ class Main extends luxe.Game
 
 	private var once:Bool = true;
 
+
+	override function config( config:AppConfig ):AppConfig {
+		
+		if(config.runtime.window != null) {
+			if(config.runtime.window.width != null) {
+				config.window.width = Std.int(config.runtime.window.width);
+			}
+			if(config.runtime.window.height != null) {
+				config.window.height = Std.int(config.runtime.window.height);
+			}
+		}
+
+		config.window.title = "Luxeout - A Breakout Clone in Luxe";
+
+		return config;
+	}
+
 	override function ready() {
 
 		var borderLeft = new Sprite({
 			name: 'borderleft',
-			pos: new Vector(-51,Luxe.screen.mid.y),
+			pos: new Vector(-45,Luxe.screen.mid.y),
 			color: new Color().rgb(0xffffff),
 			size: new Vector(50,Luxe.screen.h)
 		});
 		var borderRight = new Sprite({
 			name: 'borderright',
-			pos: new Vector(Luxe.screen.w+51,Luxe.screen.mid.y),
+			pos: new Vector(Luxe.screen.w+45,Luxe.screen.mid.y),
 			color: new Color().rgb(0xffffff),
 			size: new Vector(50,Luxe.screen.h)
 		});
 		var borderTop = new Sprite({
 			name: 'bordertop',
-			pos: new Vector(Luxe.screen.mid.x,-51),
+			pos: new Vector(Luxe.screen.mid.x,-45),
 			color: new Color().rgb(0xffffff),
-			size: new Vector(Luxe.screen.w,50)
+			size: new Vector(Luxe.screen.w*3,50)
 		});
 
 		paddle = new Sprite({
 			name: 'paddle',
 			pos: Luxe.screen.mid,
 			color: new Color().rgb(0xffffff),
-			size: new Vector(128, 32)
+			size: new Vector(128, 16)
 		});
 
 		ball0 = new Sprite({
@@ -59,26 +77,28 @@ class Main extends luxe.Game
 			size: new Vector(16,16)
 		});
 
-		for(i in 0...3) {
+		for(i in 0...5) {
+			for(a in 0...5) {
 			var block = new Sprite({
-				name: "block" + i,
-				pos: new Vector(Luxe.screen.w / 2, 32 + i*24),
-				color: new Color().rgb(0xffdddd),
-				size: new Vector(64,16)
-			});
-			block.add(new Hitbox(64,16));
-			block.add(new Destroyable());
-			collisionGroup.push(block);
+					name: "block" + i + "." + a,
+					pos: new Vector( a*64 , i*16 + 32 ),
+					color: new Color().rgb(0xffdddd),
+					size: new Vector(64,16)
+				});
+				block.add(new Hitbox(64,16, block));
+				block.add(new Destroyable());
+				collisionGroup.push(block);
+			}
 		}
 
-		borderLeft.add(new Hitbox(cast borderLeft.size.x, cast borderLeft.size.y));
-		borderRight.add(new Hitbox(cast borderRight.size.x,cast borderRight.size.y));
-		borderTop.add(new Hitbox(cast borderTop.size.x,cast borderTop.size.y));
-		paddle.add(new Hitbox(128,32));
-		ball0.add(new Hitbox(16,16));
+		borderLeft.add(new Hitbox( Std.int(borderLeft.size.x), Std.int(borderLeft.size.y), borderLeft));
+		borderRight.add(new Hitbox( Std.int(borderRight.size.x), Std.int(borderRight.size.y), borderRight));
+		borderTop.add(new Hitbox( Std.int(borderTop.size.x), Std.int(borderTop.size.y), borderTop));
+		paddle.add(new Hitbox(128,16, paddle));
+		ball0.add(new Hitbox(16,16, ball0));
 
 
-		ball0.add(new Movement(0,200, 250));
+		ball0.add(new Movement(0,200, 250, ball0));
 
 		collisionGroup.push(paddle);
 		collisionGroup.push(ball0);
@@ -86,7 +106,7 @@ class Main extends luxe.Game
 		collisionGroup.push(borderRight);
 		collisionGroup.push(borderTop);
 
-		paddle.pos.y = Luxe.screen.h - 32;
+		paddle.pos.y = Luxe.screen.h - 8;
 	}
 	
 	override function onmousemove( event:MouseEvent ) {
@@ -156,20 +176,31 @@ class Main extends luxe.Game
 				var absVelocityX = Math.abs(velocityX);
 				var absVelocityY = Math.abs(velocityY);
 
-				if(collisionSides[0] && velocityY < 0) {
-					i.get('movement').velocity.y = absVelocityY;
-				} else if(collisionSides[2]  && velocityY > 0) {
+				if(other.name == 'paddle') {
+					i.get('movement').velocity.x = (i.pos.x - other.pos.x)*10;
 					i.get('movement').velocity.y = -absVelocityY;
-				}
-				if(collisionSides[1]  && velocityX > 0) {
-					i.get('movement').velocity.x = -absVelocityX;
-				}  else if(collisionSides[3]  && velocityX < 0) {
-					i.get('movement').velocity.x = absVelocityX;
+				} else {
+
+					if(collisionSides[0]) {
+						i.get('movement').velocity.y = absVelocityY;
+					} else if(collisionSides[2]) {
+						i.get('movement').velocity.y = -absVelocityY;
+					} else if(collisionSides[1] ) {
+						i.get('movement').velocity.x = -absVelocityX;
+					}  else if(collisionSides[3]) {
+						i.get('movement').velocity.x = absVelocityX;
+					} else if(collisionSides[0] && collisionSides[1]) {
+						i.get('movement').velocity = new Vector(-absVelocityX, absVelocityY);
+					} else if(collisionSides[0] && collisionSides[3]) {
+						i.get('movement').velocity = new Vector(absVelocityX, absVelocityY);
+					} else if(collisionSides[2] && collisionSides[1]) {
+						i.get('movement').velocity = new Vector(-absVelocityX, -absVelocityY);
+					} else if(collisionSides[2] && collisionSides[3]) {
+						i.get('movement').velocity = new Vector(absVelocityX, -absVelocityY);
+					}
+
 				}
 
-				if(other.name == 'paddle' && absVelocityX < absVelocityY) {
-					i.get('movement').velocity.x = (i.pos.x - other.pos.x)*10;
-				}
 
 			} else if(i.components['destroyable'] != null) {
 

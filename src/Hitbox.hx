@@ -9,16 +9,17 @@ class Hitbox extends Component {
 	private var rectangle:Rectangle;
 	private var sprite:Sprite;
 	
-	public function new( width:Int, height:Int ):Void {
+	public function new( width:Int, height:Int, whichSprite ):Void {
 
 		super({name:"hitbox"});
 		rectangle = new Rectangle( 0, 0, width, height);
+		sprite = whichSprite;
 
 	}
 
 	override function init():Void {
 
-		sprite = cast entity;
+		//sprite = cast entity;
 		
 	}
 

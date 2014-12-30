@@ -14,6 +14,8 @@ class HXCPP_CLASS_ATTRIBUTES  IMap_obj : public hx::Interface{
 		typedef IMap_obj OBJ_;
 		HX_DO_INTERFACE_RTTI;
 		static void __boot();
+virtual Dynamic get( Dynamic k)=0;
+		Dynamic get_dyn();
 virtual Void set( Dynamic k,Dynamic v)=0;
 		Dynamic set_dyn();
 virtual bool remove( Dynamic k)=0;
@@ -23,6 +25,8 @@ virtual Dynamic iterator( )=0;
 };
 
 #define DELEGATE_IMap \
+virtual Dynamic get( Dynamic k) { return mDelegate->get(k);}  \
+virtual Dynamic get_dyn() { return mDelegate->get_dyn();}  \
 virtual Void set( Dynamic k,Dynamic v) { return mDelegate->set(k,v);}  \
 virtual Dynamic set_dyn() { return mDelegate->set_dyn();}  \
 virtual bool remove( Dynamic k) { return mDelegate->remove(k);}  \

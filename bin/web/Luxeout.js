@@ -193,15 +193,15 @@ EReg.prototype = {
 	}
 	,__class__: EReg
 };
-var Hitbox = function(width,height) {
+var Hitbox = function(width,height,whichSprite) {
 	luxe.Component.call(this,{ name : "hitbox"});
 	this.rectangle = new phoenix.Rectangle(0,0,width,height);
+	this.sprite = whichSprite;
 };
 Hitbox.__name__ = true;
 Hitbox.__super__ = luxe.Component;
 Hitbox.prototype = $extend(luxe.Component.prototype,{
 	init: function() {
-		this.sprite = this.get_entity();
 	}
 	,getHitbox: function() {
 		this.rectangle.set_x(this.sprite.get_pos().x - this.rectangle.w / 2);
@@ -638,32 +638,44 @@ var Main = function() {
 Main.__name__ = true;
 Main.__super__ = luxe.Game;
 Main.prototype = $extend(luxe.Game.prototype,{
-	ready: function() {
-		var borderLeft = new luxe.Sprite({ name : "borderleft", pos : new phoenix.Vector(-51,Luxe.get_screen().get_mid().y), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(50,Luxe.get_screen().h)});
-		var borderRight = new luxe.Sprite({ name : "borderright", pos : new phoenix.Vector(Luxe.get_screen().w + 51,Luxe.get_screen().get_mid().y), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(50,Luxe.get_screen().h)});
-		var borderTop = new luxe.Sprite({ name : "bordertop", pos : new phoenix.Vector(Luxe.get_screen().get_mid().x,-51), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(Luxe.get_screen().w,50)});
-		this.paddle = new luxe.Sprite({ name : "paddle", pos : Luxe.get_screen().get_mid(), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(128,32)});
+	config: function(config) {
+		if(config.runtime.window != null) {
+			if(config.runtime.window.width != null) config.window.width = Std.int(config.runtime.window.width);
+			if(config.runtime.window.height != null) config.window.height = Std.int(config.runtime.window.height);
+		}
+		config.window.title = "Luxeout - A Breakout Clone in Luxe";
+		return config;
+	}
+	,ready: function() {
+		var borderLeft = new luxe.Sprite({ name : "borderleft", pos : new phoenix.Vector(-45,Luxe.get_screen().get_mid().y), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(50,Luxe.get_screen().h)});
+		var borderRight = new luxe.Sprite({ name : "borderright", pos : new phoenix.Vector(Luxe.get_screen().w + 45,Luxe.get_screen().get_mid().y), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(50,Luxe.get_screen().h)});
+		var borderTop = new luxe.Sprite({ name : "bordertop", pos : new phoenix.Vector(Luxe.get_screen().get_mid().x,-45), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(Luxe.get_screen().w * 3,50)});
+		this.paddle = new luxe.Sprite({ name : "paddle", pos : Luxe.get_screen().get_mid(), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(128,16)});
 		this.ball0 = new luxe.Sprite({ name : "ball0", pos : Luxe.get_screen().get_mid(), color : new phoenix.Color().rgb(16777215), size : new phoenix.Vector(16,16)});
 		var _g = 0;
-		while(_g < 3) {
+		while(_g < 5) {
 			var i = _g++;
-			var block = new luxe.Sprite({ name : "block" + i, pos : new phoenix.Vector(Luxe.get_screen().w / 2,32 + i * 24), color : new phoenix.Color().rgb(16768477), size : new phoenix.Vector(64,16)});
-			block.add(new Hitbox(64,16));
-			block.add(new Destroyable());
-			this.collisionGroup.push(block);
+			var _g1 = 0;
+			while(_g1 < 5) {
+				var a = _g1++;
+				var block = new luxe.Sprite({ name : "block" + i + "." + a, pos : new phoenix.Vector(a * 64,i * 16 + 32), color : new phoenix.Color().rgb(16768477), size : new phoenix.Vector(64,16)});
+				block.add(new Hitbox(64,16,block));
+				block.add(new Destroyable());
+				this.collisionGroup.push(block);
+			}
 		}
-		borderLeft.add(new Hitbox(borderLeft.size.x,borderLeft.size.y));
-		borderRight.add(new Hitbox(borderRight.size.x,borderRight.size.y));
-		borderTop.add(new Hitbox(borderTop.size.x,borderTop.size.y));
-		this.paddle.add(new Hitbox(128,32));
-		this.ball0.add(new Hitbox(16,16));
-		this.ball0.add(new Movement(0,200,200));
+		borderLeft.add(new Hitbox(borderLeft.size.x | 0,borderLeft.size.y | 0,borderLeft));
+		borderRight.add(new Hitbox(borderRight.size.x | 0,borderRight.size.y | 0,borderRight));
+		borderTop.add(new Hitbox(borderTop.size.x | 0,borderTop.size.y | 0,borderTop));
+		this.paddle.add(new Hitbox(128,16,this.paddle));
+		this.ball0.add(new Hitbox(16,16,this.ball0));
+		this.ball0.add(new Movement(0,200,250,this.ball0));
 		this.collisionGroup.push(this.paddle);
 		this.collisionGroup.push(this.ball0);
 		this.collisionGroup.push(borderLeft);
 		this.collisionGroup.push(borderRight);
 		this.collisionGroup.push(borderTop);
-		this.paddle.get_pos().set_y(Luxe.get_screen().h - 32);
+		this.paddle.get_pos().set_y(Luxe.get_screen().h - 8);
 	}
 	,onmousemove: function(event) {
 		this.paddle.get_pos().set_x(event.pos.x);
@@ -690,7 +702,7 @@ Main.prototype = $extend(luxe.Game.prototype,{
 				if(this.theseCollide(i,a) && i != a) {
 					collisions.push(i);
 					otherCollisions.push(a);
-					haxe.Log.trace("Collision!",{ fileName : "Main.hx", lineNumber : 126, className : "Main", methodName : "collisionSystem"});
+					haxe.Log.trace("Collision!",{ fileName : "Main.hx", lineNumber : 146, className : "Main", methodName : "collisionSystem"});
 				}
 			}
 		}
@@ -708,21 +720,22 @@ Main.prototype = $extend(luxe.Game.prototype,{
 			collisionSides[3] = secondRect.point_inside(new phoenix.Vector(firstRect.x,firstRect.y + firstRect.h / 2));
 			if(collisionSides.filter(function(T) {
 				if(T == true) return true; else return false;
-			}).length > 1) haxe.Log.trace("WE'VE GONE TOO DEEP.",{ fileName : "Main.hx", lineNumber : 143, className : "Main", methodName : "collisionSystem"});
+			}).length > 1) haxe.Log.trace("WE'VE GONE TOO DEEP.",{ fileName : "Main.hx", lineNumber : 163, className : "Main", methodName : "collisionSystem"});
 			if((function($this) {
 				var $r;
 				var this1 = i1.get_components();
 				$r = this1.get("movement");
 				return $r;
 			}(this)) != null) {
-				haxe.Log.trace("\t\tMovement collision in " + i1.name,{ fileName : "Main.hx", lineNumber : 148, className : "Main", methodName : "collisionSystem"});
+				haxe.Log.trace("\t\tMovement collision in " + i1.name,{ fileName : "Main.hx", lineNumber : 168, className : "Main", methodName : "collisionSystem"});
 				var velocityX = i1.get("movement").velocity.x;
 				var velocityY = i1.get("movement").velocity.y;
 				var absVelocityX = Math.abs(velocityX);
 				var absVelocityY = Math.abs(velocityY);
-				if(collisionSides[0] && velocityY < 0) i1.get("movement").velocity.y = absVelocityY; else if(collisionSides[2] && velocityY > 0) i1.get("movement").velocity.y = -absVelocityY;
-				if(collisionSides[1] && velocityX > 0) i1.get("movement").velocity.x = -absVelocityX; else if(collisionSides[3] && velocityX < 0) i1.get("movement").velocity.x = absVelocityX;
-				if(other.name == "paddle" && absVelocityX < absVelocityY) i1.get("movement").velocity.x = (i1.get_pos().x - other.get_pos().x) * 10;
+				if(other.name == "paddle") {
+					i1.get("movement").velocity.x = (i1.get_pos().x - other.get_pos().x) * 10;
+					i1.get("movement").velocity.y = -absVelocityY;
+				} else if(collisionSides[0]) i1.get("movement").velocity.y = absVelocityY; else if(collisionSides[2]) i1.get("movement").velocity.y = -absVelocityY; else if(collisionSides[1]) i1.get("movement").velocity.x = -absVelocityX; else if(collisionSides[3]) i1.get("movement").velocity.x = absVelocityX; else if(collisionSides[0] && collisionSides[1]) i1.get("movement").velocity = new phoenix.Vector(-absVelocityX,absVelocityY); else if(collisionSides[0] && collisionSides[3]) i1.get("movement").velocity = new phoenix.Vector(absVelocityX,absVelocityY); else if(collisionSides[2] && collisionSides[1]) i1.get("movement").velocity = new phoenix.Vector(-absVelocityX,-absVelocityY); else if(collisionSides[2] && collisionSides[3]) i1.get("movement").velocity = new phoenix.Vector(absVelocityX,-absVelocityY);
 			} else if((function($this) {
 				var $r;
 				var this2 = i1.get_components();
@@ -731,8 +744,8 @@ Main.prototype = $extend(luxe.Game.prototype,{
 			}(this)) != null) {
 				i1.destroy();
 				HxOverrides.remove(this.collisionGroup,i1);
-				haxe.Log.trace("\t\tDestruction collision in " + i1.name,{ fileName : "Main.hx", lineNumber : 178, className : "Main", methodName : "collisionSystem"});
-			} else haxe.Log.trace("\t\tWeird collision in " + i1.name,{ fileName : "Main.hx", lineNumber : 182, className : "Main", methodName : "collisionSystem"});
+				haxe.Log.trace("\t\tDestruction collision in " + i1.name,{ fileName : "Main.hx", lineNumber : 209, className : "Main", methodName : "collisionSystem"});
+			} else haxe.Log.trace("\t\tWeird collision in " + i1.name,{ fileName : "Main.hx", lineNumber : 213, className : "Main", methodName : "collisionSystem"});
 		}
 	}
 	,theseCollide: function(spr1,spr2) {
@@ -748,16 +761,16 @@ IMap.prototype = {
 	__class__: IMap
 };
 Math.__name__ = true;
-var Movement = function(xspeed,yspeed,maxSpeed) {
+var Movement = function(xspeed,yspeed,maxSpeed,whichSprite) {
 	luxe.Component.call(this,{ name : "movement"});
 	this.velocity = new phoenix.Vector(xspeed,yspeed);
 	this.maxVelocity = maxSpeed;
+	this.sprite = whichSprite;
 };
 Movement.__name__ = true;
 Movement.__super__ = luxe.Component;
 Movement.prototype = $extend(luxe.Component.prototype,{
 	init: function() {
-		this.sprite = this.get_entity();
 	}
 	,update: function(dt) {
 		this.sprite.set_pos(phoenix.Vector.Add(this.sprite.get_pos(),phoenix.Vector.Multiply(this.velocity,dt)));

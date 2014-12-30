@@ -4,6 +4,8 @@
 #include <IMap.h>
 #endif
 
+HX_DEFINE_DYNAMIC_FUNC1(IMap_obj,get,return )
+
 HX_DEFINE_DYNAMIC_FUNC2(IMap_obj,set,)
 
 HX_DEFINE_DYNAMIC_FUNC1(IMap_obj,remove,return )
@@ -12,6 +14,7 @@ HX_DEFINE_DYNAMIC_FUNC0(IMap_obj,iterator,return )
 
 
 static ::String sMemberFields[] = {
+	HX_CSTRING("get"),
 	HX_CSTRING("set"),
 	HX_CSTRING("remove"),
 	HX_CSTRING("iterator"),

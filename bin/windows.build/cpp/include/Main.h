@@ -7,18 +7,12 @@
 
 #include <luxe/Game.h>
 HX_DECLARE_CLASS0(Main)
-HX_DECLARE_CLASS0(Movement)
-HX_DECLARE_CLASS1(luxe,Component)
 HX_DECLARE_CLASS1(luxe,Emitter)
 HX_DECLARE_CLASS1(luxe,Entity)
 HX_DECLARE_CLASS1(luxe,Game)
-HX_DECLARE_CLASS1(luxe,ID)
 HX_DECLARE_CLASS1(luxe,Objects)
 HX_DECLARE_CLASS1(luxe,Sprite)
 HX_DECLARE_CLASS1(luxe,Visual)
-HX_DECLARE_CLASS3(luxe,collision,shapes,Circle)
-HX_DECLARE_CLASS3(luxe,collision,shapes,Polygon)
-HX_DECLARE_CLASS3(luxe,collision,shapes,Shape)
 
 
 class HXCPP_CLASS_ATTRIBUTES  Main_obj : public ::luxe::Game_obj{
@@ -44,11 +38,11 @@ class HXCPP_CLASS_ATTRIBUTES  Main_obj : public ::luxe::Game_obj{
 		::String __ToString() const { return HX_CSTRING("Main"); }
 
 		::luxe::Sprite paddle;
-		::luxe::Sprite ball1;
-		::Movement ball1Move;
-		::luxe::collision::shapes::Polygon paddleCol;
-		::luxe::collision::shapes::Circle ball1Col;
+		::luxe::Sprite ball0;
+		Array< ::Dynamic > collisionGroup;
 		bool once;
+		virtual Dynamic config( Dynamic config);
+
 		virtual Void ready( );
 
 		virtual Void onmousemove( Dynamic event);
@@ -56,6 +50,12 @@ class HXCPP_CLASS_ATTRIBUTES  Main_obj : public ::luxe::Game_obj{
 		virtual Void onkeyup( Dynamic event);
 
 		virtual Void update( Float delta);
+
+		virtual Void collisionSystem( );
+		Dynamic collisionSystem_dyn();
+
+		virtual bool theseCollide( ::luxe::Sprite spr1,::luxe::Sprite spr2);
+		Dynamic theseCollide_dyn();
 
 };
 
